@@ -1,4 +1,6 @@
 from django.conf.urls import url
+from django.conf import settings
+from django.conf.urls.static import static
 from django.views.generic import TemplateView
 from django.views.generic.base import RedirectView
 
@@ -12,7 +14,7 @@ from . import views
 urlpatterns = format_suffix_patterns([
     url(r'^api/user/login/$', obtain_auth_token, name='login-user'),
     url(r'^api/user/$', views.UserRegisterView.as_view(), name='register-user'),
-    url(r'^favicon\.ico$',
+    url(r'^favicon/.ico$',
         RedirectView.as_view(
             url='/static/icons/favicon.ico',
             permanent=True
@@ -24,4 +26,4 @@ urlpatterns = format_suffix_patterns([
          views.DetailDog.as_view(), name='get-dog'),
     path('api/user/preferences/',
          views.RetrieveUpdateUserPref.as_view(), name='update-dog')
-])
+]) + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
