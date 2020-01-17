@@ -96,7 +96,7 @@ class DetailDog(RetrieveAPIView):
                 Q(dog_id__gt=pk) &
                 Q(user=self.request.user) &
                 Q(status='d')
-            ).first()
+            ).first()                 
             if not user_dog:
                 raise Http404
             return user_dog.dog
