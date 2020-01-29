@@ -29,8 +29,9 @@ class UserPref(models.Model):
 
 
 @receiver(post_save, sender=User)
-def after_created(sender, instance, created, ** kwargs):
+def after_created(sender, instance, created, **kwargs):
     if created:
         UserPref.objects.create(
             user=instance,
         )
+

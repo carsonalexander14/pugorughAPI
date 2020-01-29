@@ -19,6 +19,7 @@ class UserRegisterView(CreateAPIView):
     serializer_class = serializers.UserSerializer
 
 
+
 class UpdateDog(UpdateAPIView):
     queryset = models.Dog.objects.all()
     serializer_class = serializers.DogSerializer
@@ -34,9 +35,10 @@ class UpdateDog(UpdateAPIView):
         if pk > 0:
             dog = models.Dog.objects.get(pk=pk)
         try:
-            user_dog = models.UserDog.objects.get(dog=dog)
+            user_dog = models.UserDog.objects.get(dog=dog, user=self.request.user)
             user_dog.status = status[filter]
             user_dog.save()
+
         except models.UserDog.DoesNotExist:
             models.UserDog.objects.create(
                 dog=dog,
