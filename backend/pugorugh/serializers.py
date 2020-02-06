@@ -45,7 +45,7 @@ class DogSerializer(serializers.ModelSerializer):
 class UserPrefSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.UserPref
-        fields = ('age', 'gender', 'size', 'id')
+        fields = ('age', 'gender', 'size')
 
     def validate_age(self, value):
         for char in value.split(','):

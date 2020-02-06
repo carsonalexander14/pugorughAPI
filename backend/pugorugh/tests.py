@@ -3,6 +3,11 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from rest_framework.authtoken.models import Token
+from rest_framework import status
+from rest_framework.test import (
+    APIRequestFactory, force_authenticate, APIClient)
+
 from . import models
 from . import serializers
 
@@ -36,6 +41,7 @@ class ModelsTests(TestCase):
         self.assertEqual(dog.name, data['name'])
 
 
+
 class DogSerializerTests(TestCase):
     def setUp(self):
         self.dog_data = {
@@ -64,14 +70,46 @@ class DogSerializerTests(TestCase):
             data.keys(), ['name', 'image_filename', 'age', 'breed',
                           'gender', 'size', 'id'])
     
-    def test_fields(self):
-        data = self.serializer.data
 
-        self.assertEqual(data['name'], self.dog_data['name'])
-        self.assertEqual(data['image_filename'],
-                         self.dog_data['image_filename'])
-        self.assertEqual(data['age'], self.dog_data['age'])
-        self.assertEqual(data['breed'], self.dog_data['breed'])
-        self.assertEqual(data['gender'], self.dog_data['gender'])
-        self.assertEqual(data['size'], self.dog_data['size'])
+class ViewsTests(TestCase):
+    def setUp(self):
+        form = UserCreationForm(data={
+            'id': 1,
+            'username': 'carson',
+            'password1': 'carson1',
+            'password2': 'carson1'
+        })
+        form.save()
+        data = {
+            'name': 'goodboy',
+            'image_filename': '1.jpg',
+            'age': 1,
+            'breed': 'Boxer',
+            'gender': 'm',
+            'size': 'm',
+
+        }
+        self.data = models.Dog.objects.create(**data)
+        self.user = User.objects.get(id=1)
+        token = Token.objects.create(user=self.user).key
+        self.client = APIClient()
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + token)
+
+
+    def test_DetailDog_liked(self):
+        self.client.put('/api/dog/1/liked/', format='json')
+        response = self.client.get(
+            '/api/dog/-1/liked/next/', format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['name'], 'goodboy')
+
+
+    def test_DetailDog_disliked(self):
+        self.client.put('/api/dog/1/disliked/', format='json')
+        response = self.client.get(
+            '/api/dog/-1/disliked/next/', format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['name'], 'goodboy')
 
